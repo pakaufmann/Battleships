@@ -1,0 +1,40 @@
+<?php
+namespace kufi\BattleshipBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * represents a single game field
+ * 
+ * @author kufi
+ *
+ * @ORM\Entity
+ */
+class Field
+{
+	/**
+	 * 
+	 * @ORM\Id
+	 * @ORM\Column(type="integer")
+	 * @ORM\GeneratedValue(strategy="AUTO")
+	 */
+	protected $id;
+	
+	/**
+	 * 
+	 * @ORM\ManyToOne(targetEntity="Game", inversedBy="id")
+	 */
+	protected $game;
+	
+	/**
+	 * 
+	 * @ORM\Column(type="boolean")
+	 */
+	protected $hasShip;
+	
+	/**
+	 * 
+	 * @ORM\Column(type="boolean")
+	 */
+	protected $isHit;
+}

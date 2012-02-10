@@ -1,0 +1,20 @@
+<?php
+namespace kufi\BattleshipBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * represents a game in singleplayer
+ * @author kufi
+ * 
+ * @ORM\Entity
+ *
+ */
+class SingleplayerGame extends Game
+{
+	/**
+	 * 
+	 * @ORM\Column(type="integer")
+	 */
+	protected $difficulty;
+}

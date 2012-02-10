@@ -1,0 +1,36 @@
+<?php
+namespace kufi\BattleshipBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * abstract base class for games
+ * 
+ * @author kufi
+ *
+ * @ORM\Entity
+ * @ORM\InheritanceType("SINGLE_TABLE")
+ * @ORM\DiscriminatorColumn(name="game_type", type="string")
+ * @ORM\DiscriminatorMap({"sp" = "SingleplayerGame", "mp" = "MultiplayerGame"})
+ */
+abstract class Game
+{
+	/**
+	 * @ORM\Id
+	 * @ORM\Column(type="integer")
+	 * @ORM\generatedValue
+	 */
+	protected $id;
+	
+	/**
+	 *
+	 * @ORM\OneToMany(targetEntity="Field", mappedBy="game")
+	 */
+	protected $userFields;
+	
+	/**
+	 * 
+	 * @ORM\OneToMany(targetEntity="Field", mappedBy="game")
+	 */
+	protected $aiFields;
+}

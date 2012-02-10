@@ -1,0 +1,8 @@
+services:
+  gameRepository:
+    class: kufi\BattleshipBundle\Model\GameRepository
+    arguments: [@doctrine.orm.entity_manager]
+  
+  singleplayerController:
+    class: kufi\BattleshipBundle\Controller\SingleplayerController
+    arguments: [@gameRepository]
