@@ -1,9 +1,12 @@
 <?php
 namespace kufi\BattleshipBundle\Model;
 
+use kufi\BattleshipBundle\kufiBattleshipBundle;
+
 use Doctrine\ORM\EntityManager;
 
-class GameRepository {
+class GameRepository
+{
 	
 	private $em;
 	
@@ -16,5 +19,16 @@ class GameRepository {
 	{
 		$this->em->persist($game);
 		$this->em->flush();
+	}
+	
+	public function updateGame($game)
+	{
+		$this->em->persist($game);
+		$this->em->flush();
+	}
+	
+	public function getGame($id)
+	{
+		return $this->em->getRepository("kufiBattleshipBundle:Game")->find($id);
 	}
 }

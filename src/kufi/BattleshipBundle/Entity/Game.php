@@ -24,20 +24,20 @@ abstract class Game
 	
 	/**
 	 *
-	 * @ORM\OneToMany(targetEntity="Field", mappedBy="game")
+	 * @ORM\OneToMany(targetEntity="Field1", mappedBy="game", cascade={"all"})
 	 */
-	protected $userFields;
+	protected $user1Fields;
 	
 	/**
 	 * 
-	 * @ORM\OneToMany(targetEntity="Field", mappedBy="game")
+	 * @ORM\OneToMany(targetEntity="Field2", mappedBy="game", cascade={"all"})
 	 */
-	protected $aiFields;
+	protected $user2Fields;
 	
     public function __construct()
     {
-        $this->userFields = new \Doctrine\Common\Collections\ArrayCollection();
-    	$this->aiFields = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->user1Fields = new \Doctrine\Common\Collections\ArrayCollection();
+    	$this->user2Fields = new \Doctrine\Common\Collections\ArrayCollection();
     }
     
     /**
@@ -55,9 +55,10 @@ abstract class Game
      *
      * @param kufi\BattleshipBundle\Entity\Field $userFields
      */
-    public function addUserField(\kufi\BattleshipBundle\Entity\Field $userField)
+    public function addUser1Field(\kufi\BattleshipBundle\Entity\Field $userField)
     {
-        $this->userFields[] = $userField;
+    	$userField->setGame($this);
+        $this->user1Fields->add($userField);
     }
     
     /**
@@ -65,9 +66,10 @@ abstract class Game
      *
      * @param kufi\BattleshipBundle\Entity\Field $userFields
      */
-    public function addAiField(\kufi\BattleshipBundle\Entity\Field $aiField)
+    public function addUser2Field(\kufi\BattleshipBundle\Entity\Field $userField)
     {
-    	$this->userFields[] = $aiField;
+    	$userField->setGame($this);
+    	$this->user2Fields->add($userField);
     }
     
     /**
@@ -75,9 +77,9 @@ abstract class Game
      *
      * @return Doctrine\Common\Collections\Collection 
      */
-    public function getUserFields()
+    public function getUser1Fields()
     {
-        return $this->userFields;
+        return $this->user1Fields;
     }
 
     /**
@@ -85,8 +87,8 @@ abstract class Game
      *
      * @return Doctrine\Common\Collections\Collection 
      */
-    public function getAiFields()
+    public function getUser2Fields()
     {
-        return $this->aiFields;
+        return $this->user2Fields;
     }
 }

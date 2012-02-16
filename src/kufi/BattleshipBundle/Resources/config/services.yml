@@ -1,3 +1,5 @@
+parameters:
+  fieldSize: 10
 services:
   gameRepository:
     class: kufi\BattleshipBundle\Model\GameRepository
@@ -5,4 +7,4 @@ services:
   
   singleplayerController:
     class: kufi\BattleshipBundle\Controller\SingleplayerController
-    arguments: [@gameRepository]
+    arguments: [@gameRepository, @session, %fieldSize%]

@@ -9,8 +9,11 @@ use Doctrine\ORM\Mapping as ORM;
  * @author kufi
  *
  * @ORM\Entity
+ * @ORM\InheritanceType("SINGLE_TABLE")
+ * @ORM\DiscriminatorColumn(name="field_type", type="string")
+ * @ORM\DiscriminatorMap({"f1" = "Field1", "f2" = "Field2"})
  */
-class Field
+abstract class Field
 {
 	/**
 	 * 
@@ -49,6 +52,14 @@ class Field
 	 * @ORM\Column(type="integer")
 	 */
 	protected $yCoord;
+	
+	public function __construct($x, $y)
+	{
+		$this->xCoord = $x;
+		$this->yCoord = $y;
+		$this->hasShip = false;
+		$this->isHit = false;
+	}
 	
     /**
      * Get id

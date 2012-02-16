@@ -1,0 +1,22 @@
+<table class="gameField" id="{{ fieldId }}">
+	{% set lastX = -1 %}
+	{% set firstRow = true %}
+	
+	{% for field in fields %}
+		{% if lastX != field.getX() and not firstRow %}
+			</tr>
+		{% endif %}
+		
+		{% if lastX != field.getX() %}
+			<tr>
+			{% set firstRow = false %}
+		{% endif %}
+		
+		{% set fieldClass = "field" %}
+		
+		<td id="field_{{ field.getX() }}_{{ field.getY() }}" class="{{ fieldClass }}">
+		</td>
+		
+		{% set lastX = field.getX() %}
+	{% endfor %}
+</table>

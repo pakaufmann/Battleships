@@ -1,1 +1,45 @@
-{{ game.id }}
+{% extends "kufiBattleshipBundle:Layouts:layout.html.twig" %}
+
+{% block javascripts %}
+	<script src="{{ asset('bundles/battleships/scripts/singleplayer.js') }}" type="text/javascript"></script>
+{% endblock %}
+
+{% block body %}
+	<div id="ships">
+		<input type="radio" checked="checked" name="ships" id="carrier" value="5" />
+		<label for="carrier">Carrier</label>
+		
+		<input type="radio" name="ships" id="battleship" value="4" />
+		<label for="battleship">Battleship</label>
+		
+		<input type="radio" name="ships" id="submarine" value="3" />
+		<label for="submarine">Submarine</label>
+		
+		<input type="radio" name="ships" id="cruiser" value="3" />
+		<label for="cruiser">Cruiser</label>
+		
+		<input type="radio" name="ships" id="destroyer" value="2" />
+		<label for="destroyer">Destroyer</label>
+		
+		<input type="radio" name="ships" id="torpedoboat" value="1" />
+		<label for="torpedoboat">Torpedobat</label>
+	</div>
+	<div id="orientation">
+		<input type="radio" checked="checked" name="orientation" id="horizontal" value="1" />
+		<label for="horizontal">Horizontal</label>
+		
+		<input type="radio" name="orientation" id="vertical" value="2" />
+		<label for="vertical">Vertical</label>
+	</div>
+	
+	<div id="messages">
+		<div id="message">
+		</div>
+	</div>
+	
+
+	{% include 'kufiBattleshipBundle:Singleplayer:gameField.html.twig' with {'fields': game.user1Fields, 'fieldId': 'userField', 'user': true} %}
+	
+	{% include 'kufiBattleshipBundle:Singleplayer:gameField.html.twig' with {'fields': game.user2Fields, 'fieldId': 'aiField', 'user': false} %}
+	
+{% endblock %}
