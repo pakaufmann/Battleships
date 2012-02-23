@@ -6,23 +6,21 @@
 
 {% block body %}
 	<div id="ships">
-		<input type="radio" checked="checked" name="ships" id="carrier" value="5" />
+	
+		<input type="radio" checked="checked" name="ships" id="carrier" {% if game.hasShip1WithLength(5) %} disabled="disabled" {% endif %} value="5" />
 		<label for="carrier">Carrier</label>
 		
-		<input type="radio" name="ships" id="battleship" value="4" />
+		<input type="radio" name="ships" id="battleship" {% if game.hasShip1WithLength(4) %} disabled="disabled" {% endif %} value="4" />
 		<label for="battleship">Battleship</label>
 		
-		<input type="radio" name="ships" id="submarine" value="3" />
-		<label for="submarine">Submarine</label>
-		
-		<input type="radio" name="ships" id="cruiser" value="3" />
+		<input type="radio" name="ships" id="cruiser" {% if game.hasShip1WithLength(3) %} disabled="disabled" {% endif %} value="3" />
 		<label for="cruiser">Cruiser</label>
 		
-		<input type="radio" name="ships" id="destroyer" value="2" />
-		<label for="destroyer">Destroyer</label>
+		<input type="radio" name="ships" id="submarine" {% if game.hasShip1WithLength(2) %} disabled="disabled" {% endif %} value="2" />
+		<label for="submarine">Submarine</label>
 		
-		<input type="radio" name="ships" id="torpedoboat" value="1" />
-		<label for="torpedoboat">Torpedobat</label>
+		<input type="radio" name="ships" id="destroyer" {% if game.hasShip1WithLength(1) %} disabled="disabled" {% endif %} value="1" />
+		<label for="destroyer">Destroyer</label>
 	</div>
 	<div id="orientation">
 		<input type="radio" checked="checked" name="orientation" id="horizontal" value="1" />

@@ -8,19 +8,22 @@ $(function() {
 	shipLength = $("#ships input:checked").attr("value");
 	orientation = $("#orientation input:checked").attr("value");
 	
+	//check state
+	checkShips();
+	
 	$("#userField td").click(function() {
 		var coords = getCoords(this);
 		var valid = true;
 		
 		//check if valid
 		onFields(this, function(x, y, i) {
-			if($("#field_" + x + "_" + (y + i)).size() == 0 ||
-			   $("#field_" + x + "_" + (y + i)).hasClass("shipAdded")) {
+			if($("#userField_" + x + "_" + (y + i)).size() == 0 ||
+			   $("#userField_" + x + "_" + (y + i)).hasClass("shipAdded")) {
 				valid = false;
 			}
 		}, function(x, y, i) {
-			if($("#field_" + (x + i) + "_" + y).size() == 0 ||
-			   $("#field_" + (x + i) + "_" + y).hasClass("shipAdded")) {
+			if($("#userField_" + (x + i) + "_" + y).size() == 0 ||
+			   $("#userField_" + (x + i) + "_" + y).hasClass("shipAdded")) {
 				valid = false;
 			}
 		});
@@ -29,35 +32,44 @@ $(function() {
 			messageBar("This position is not valid", "error");
 			return;
 		}
+		
+		//check if already set
 		if($("#ships input[value=" + shipLength + "]").button("option", "disabled")) {
 			messageBar("This Ship is already set!", "error");
 			return;
 		}
 		
-		$.getJSON("/singleplayer" + coords.x + "/" + coords.y + "/" + shipLength + "/" + orientation, function(response) {
-			
+		//add the ship also on the serverside
+		clickedTd = this;
+		$.getJSON("singleplayer/addShip/" + coords.x + "/" + coords.y + "/" + shipLength + "/" + orientation, function(data) {
+			if(!data.success) {
+				messageBar("There was a server error, the ship could not be set there", "error");
+			} else {
+				$("#ships input[value=" + shipLength + "]").button("option", "disabled", true);
+				onFields(clickedTd, function(x,y,i) {
+					$("#userField_" + x + "_" + (y + i)).addClass("shipAdded");
+				}, function(x,y,i) {
+					$("#userField_" + (x + i) + "_" + y).addClass("shipAdded");
+				});
+				
+				messageBar("Valid position", "info");
+				
+				//check if all ships have been set, if yes, call serverside
+				checkShips();
+			}
 		});
-		
-		$("#ships input[value=" + shipLength + "]").button("option", "disabled", true);
-		onFields(this, function(x,y,i) {
-			$("#field_" + x + "_" + (y + i)).addClass("shipAdded");
-		}, function(x,y,i) {
-			$("#field_" + (x + i) + "_" + y).addClass("shipAdded");
-		});
-		
-		messageBar("Valid position", "info");
 		
 	}).hover(function() {
 		onFields(this, function(x, y, i) {
-			$("#field_" + x + "_" + (y + i)).addClass("addShip");
+			$("#userField_" + x + "_" + (y + i)).addClass("addShip");
 		}, function(x, y, i) {
-			$("#field_" + (x + i) + "_" + y).addClass("addShip");
+			$("#userField_" + (x + i) + "_" + y).addClass("addShip");
 		});
 	}, function() {
 		onFields(this, function(x, y, i) {
-			$("#field_" + x + "_" + (y + i)).removeClass("addShip");
+			$("#userField_" + x + "_" + (y + i)).removeClass("addShip");
 		}, function(x, y, i) {
-			$("#field_" + (x + i) + "_" + y).removeClass("addShip");
+			$("#userField_" + (x + i) + "_" + y).removeClass("addShip");
 		});
 	});
 	
@@ -69,6 +81,70 @@ $(function() {
 		shipLength = $("#ships input:checked").attr("value");
 	});
 });
+
+/**
+ * checks if all ships have been set, if yes calls serverside
+ */
+function checkShips() {
+	if($("#ships input:disabled").size() == 5) {
+		$.getJSON("singleplayer/startGame", function(data) {
+			if(data.success) {
+				//disable userfield
+				$("#userField td").unbind("click").unbind("hover");
+				
+				//add click and hover handler to ai field
+				$("#aiField td").click(aiFieldClick).hover(function() {
+					$(this).addClass("shoot");
+				}, function() {
+					$(this).removeClass("shoot");
+				});
+			} else {
+				messageBar("A serverside error occured", "error");
+			}
+		});
+	}
+}
+
+/**
+ * handles click on ai field
+ */
+function aiFieldClick() {
+	//check if field already shot
+	if($(this).hasClass("shot")) {
+		messageBar("You have already shot on this field", "error");
+		return;
+	}
+	
+	xy = getCoords(this);
+	
+	var hitField = $(this);
+	
+	$.getJSON("singleplayer/shoot/" + xy.x + "/" + xy.y, function(data) {
+		if(data.success) {
+			if(data.alreadyHit) {
+				messageBar("You have already hit this field!", "warning");
+			}
+			if(data.hit) {
+				hitField.addClass("hit").addClass("shot");
+			} else {
+				hitField.addClass("shot");
+			}
+			$.each(data.aiHitFields, function(i, f) {
+				var x = f.x;
+				var y = f.y;
+				var hitField = $("#userField_" + x + "_" + y);
+				
+				hitField.addClass("shot");
+				
+				if(hitField.hasClas("shipAdded")) {
+					hitField.addClass("hit");
+				}
+			});
+		} else {
+			messageBar("the server returned an error", "error");
+		}
+	});
+}
 
 function messageBar(message, messageType) {
 	$("#message")

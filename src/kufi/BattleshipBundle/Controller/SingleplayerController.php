@@ -2,6 +2,8 @@
 
 namespace kufi\BattleshipBundle\Controller;
 
+use kufi\BattleshipBundle\Entity\Ship1;
+
 use kufi\BattleshipBundle\Model\GameRepository;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -35,15 +37,12 @@ class SingleplayerController extends Controller
 	 */
 	public function newGameAction()
 	{
-		if($this->session->get("sp_gameId", "") === "")
+		$game = $this->gameRepository->getGame($this->session->get("sp_gameId"));
+		if($game === null)
 		{
 			$game = new SingleplayerGame(1, $this->fieldSize);
 			$this->gameRepository->addGame($game);
 			$this->session->set("sp_gameId", $game->getId());
-		}
-		else
-		{
-			$game = $this->gameRepository->getGame($this->session->get("sp_gameId"));
 		}
 		
 		return array("game" => $game);
@@ -58,8 +57,9 @@ class SingleplayerController extends Controller
 	 * @param int $x
 	 * @param int $y
 	 * @param int $length
+	 * @param int $orientation
 	 */
-	public function setFieldAction($x, $y, $length, $orientation) {
+	public function addShipAction($x, $y, $length, $orientation) {
 		$gameId = $this->session->get("sp_gameId", "");
 		if($gameId === "") {
 			return array("success" => "false");
@@ -67,27 +67,81 @@ class SingleplayerController extends Controller
 		
 		$game = $this->gameRepository->getGame($gameId);
 		
-		$fields = $game->getUser1Fields();
+		//check if the ship was already set
+		$ships = $game->getUser1Ships();
+		$res = $ships->filter(function($ship) use ($length) {
+			return $ship->getLength() == $length;
+		});
 		
-		//loop over all fields and set the set has ship to true
-		//throw an error if the field already has a ship
-		for($i=0;$i<$length;$i++) {
-			$coll = $fields->filter(function($field) use ($orientation, $x, $y, $i) {
-				if($orientation == 1) {
-					return $field->getX() == $x && ($field->getY()) == ($y + $i) && !$field->getHasShip();
-				} else {
-					return $field->getX() == ($x + $i) && ($field->getY()) == $y && !$field->getHasShip();
-				}
-			});
-			
-			if($coll->isEmpty()) {
-				return array("success" => "false");
-			} else {
-				$coll->first()->setHasSHip(true);
-			}
+		if(!$res->isEmpty())
+		{
+			return array("success" => "false");
+		}
+		
+		//add the ship
+		$ship = new Ship1($x, $y, $length, $orientation);
+		$res = $game->addUser1Ship($ship);
+		$this->gameRepository->updateGame($game);
+		
+		return array("success" => json_encode($res));
+	}
+	
+	/**
+	 * starts a game/sets the ai fields (only if not already done)
+	 * @Route("/singleplayer/startGame", name="bs_sp_startGame", defaults={"_format"="json"})
+	 * @Template()
+	 */
+	public function startGameAction()
+	{
+		$gameId = $this->session->get("sp_gameId", "");
+		if($gameId === "") {
+			return array("success" => "false");
+		}
+		
+		$game = $this->gameRepository->getGame($gameId);
+		
+		//ai fields already set
+		if($game->getUser2Ships()->count() > 0) {
+			return array("success" => "true");
+		}
+		
+		$game->setUser2FieldsAutomatically();
+		$this->gameRepository->updateGame($game);
+		
+		return array("success" => "true");
+	}
+	
+	/**
+	 * shoot onto a field of player 2
+	 * 
+	 * @Route("/singleplayer/shoot/{x}/{y}", name="sp_shoot", defaults={"_format"="json"})
+	 * @Template()
+	 */
+	public function shootAction($x, $y)
+	{
+		$gameId = $this->session->get("sp_gameId", "");
+		if($gameId === "") {
+			return array("success" => "false", "hit" => "false");
+		}
+		
+		$game = $this->gameRepository->getGame($gameId);
+		
+		$alreadyHit = $game->checkAlreadyHitUser2($x, $y);
+		
+		//shoot onto the ai field
+		$hit = $game->hitFieldUser2($x, $y);
+		if($hit)
+		{
+			$hitFields = array();
+		}
+		else
+		{
+			//ai shoots and returns all hit fields
+			$hitFields = $game->user2ShootAutomatically();
 		}
 		
 		$this->gameRepository->updateGame($game);
-		return array("success" => "true");
+		
+		return array("success" => "true", "alreadyHit" => json_encode($alreadyHit), "hit" => json_encode($hit), "hitFields" => $hitFields);
 	}
 }

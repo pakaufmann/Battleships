@@ -10,6 +10,21 @@
 	background-color:#55F;
 }
 
+.shoot
+{
+	background-color:#F33;
+}
+
+.shot
+{
+	background-color:#880;
+}
+
+.hit
+{
+	background-color:#F00;
+}
+
 .shipAdded
 {
 	background-color:#CCC;
