@@ -7,4 +7,4 @@ services:
   
   singleplayerController:
     class: kufi\BattleshipBundle\Controller\SingleplayerController
-    arguments: [@gameRepository, @session, %fieldSize%]
+    arguments: [@gameRepository, @router, @session, %fieldSize%]

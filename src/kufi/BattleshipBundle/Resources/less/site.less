@@ -1,70 +1,87 @@
+@waterColor: #00C;
+
+.clear
+{
+    clear:both;
+}
+
 .field
 {
-	width:30px;
-	height:30px;
-	background-color:blue;
+    width:30px;
+    height:30px;
+    background-color:@waterColor;
 }
 
 .addShip
 {
-	background-color:#55F;
+    background-color:#55F;
 }
 
 .shoot
 {
-	background-color:#F33;
-}
-
-.shot
-{
-	background-color:#880;
-}
-
-.hit
-{
-	background-color:#F00;
+    background-color:#F33;
 }
 
 .shipAdded
 {
-	background-color:#CCC;
+    background-color:#CCC;
+}
+
+.shot
+{
+    background-color:#880;
+}
+
+.hit
+{
+    background-color:#F00;
+}
+
+#fields
+{
+    background-color:@waterColor + #003;
+    width:1000px;
 }
 
 .gameField
 {
-	float:left;
-	border:0px;
-	border-collapse: collapse;
-	margin:20px;
+    float:left;
+    border:0px;
+    border-collapse: collapse;
+    margin:20px;
+    margin-left:120px;
+    transform:rotateX(60deg) rotate(45deg);
+    -webkit-transform:rotateX(60deg) rotate(45deg);
+    -moz-transform:rotateX(60deg) rotate(45deg);
 }
 
 .gameField td
 {
-	padding:0px;
+    padding:0px;
     margin:0px;
     border:1px solid black;
 }
 
 #ships
 {
-	float:left;
-	margin-right:20px;
+    float:left;
+    margin-right:20px;
 }
 
 #messages
 {
-	height:25px;
+    height:25px;
     margin-top:15px;
     margin-bottom:15px;
 }
 
 #message
 {
-	display:none;
-	width:400px;
+    display:none;
+    width:400px;
 }
 
-.info, .success, .warning, .error, .validation
+.messageField
 {
   border: 1px solid;
   margin: 10px 0px;
@@ -75,6 +92,7 @@
 
 .info
 {
+  .messageField;
   color: #00529B;
   background-color: #BDE5F8;
   background-image: url('/Battleships/web/bundles/battleships/images/Info.png');
@@ -82,6 +100,7 @@
 
 .success
 {
+  .messageField;
   color: #4F8A10;
   background-color: #DFF2BF;
   background-image:url('/Battleships/web/bundles/battleships/images/Valid_Green.png');
@@ -89,6 +108,7 @@
 
 .warning
 {
+  .messageField;
   color: #9F6000;
   background-color: #FEEFB3;
   background-image: url('/Battleships/web/bundles/battleships/images/Attention.png');
@@ -96,6 +116,7 @@
 
 .error
 {
+  .messageField;
   color: #D8000C;
   background-color: #FFBABA;
   background-image: url('/Battleships/web/bundles/battleships/images/Cancel.png');

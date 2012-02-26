@@ -4,12 +4,14 @@ var shipLength = 5;
 $(function() {
 	$("#ships").add("#orientation").buttonset();
 	
+	//check state
+	selectShip();
+	checkShips();
+	
 	//load initial values
 	shipLength = $("#ships input:checked").attr("value");
 	orientation = $("#orientation input:checked").attr("value");
 	
-	//check state
-	checkShips();
 	
 	$("#userField td").click(function() {
 		var coords = getCoords(this);
@@ -54,6 +56,10 @@ $(function() {
 				
 				messageBar("Valid position", "info");
 				
+				//move to next ship which is not set and check it
+				selectShip();
+				shipLength = $("#ships input:checked").attr("value");
+				
 				//check if all ships have been set, if yes, call serverside
 				checkShips();
 			}
@@ -81,6 +87,12 @@ $(function() {
 		shipLength = $("#ships input:checked").attr("value");
 	});
 });
+
+function selectShip() {
+	$("#ships input").removeAttr("checked");
+	$("#ships input").not("[disabled]").first().attr("checked", "checked");
+	$("#ships").buttonset("refresh");
+}
 
 /**
  * checks if all ships have been set, if yes calls serverside
@@ -136,7 +148,7 @@ function aiFieldClick() {
 				
 				hitField.addClass("shot");
 				
-				if(hitField.hasClas("shipAdded")) {
+				if(hitField.hasClass("shipAdded")) {
 					hitField.addClass("hit");
 				}
 			});

@@ -5,6 +5,10 @@
 {% endblock %}
 
 {% block body %}
+	<div>
+		<a href="{{ path("bs_sp_forceNew") }}">start new Game</a>
+	</div>
+	
 	<div id="ships">
 	
 		<input type="radio" checked="checked" name="ships" id="carrier" {% if game.hasShip1WithLength(5) %} disabled="disabled" {% endif %} value="5" />
@@ -35,9 +39,12 @@
 		</div>
 	</div>
 	
-
-	{% include 'kufiBattleshipBundle:Singleplayer:gameField.html.twig' with {'fields': game.user1Fields, 'fieldId': 'userField', 'user': true} %}
 	
-	{% include 'kufiBattleshipBundle:Singleplayer:gameField.html.twig' with {'fields': game.user2Fields, 'fieldId': 'aiField', 'user': false} %}
+	<div id="fields">
+		{% include 'kufiBattleshipBundle:Singleplayer:gameField.html.twig' with {'fields': game.user1Fields, 'fieldId': 'userField', 'user': true} %}
+
+		{% include 'kufiBattleshipBundle:Singleplayer:gameField.html.twig' with {'fields': game.user2Fields, 'fieldId': 'aiField', 'user': false} %}
+		<div class="clear"></div>
+	</div>
 	
 {% endblock %}

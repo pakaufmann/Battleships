@@ -298,8 +298,7 @@ abstract class Game
     	
     	//just randomly shoot somewhere where we havent already shot (not really sophisticated)
     	//shoot until we hit an empty field
-    	
-    	$ret = $this->user2Fields->filter(function($field) {
+    	$ret = $this->user1Fields->filter(function($field) {
     		return !$field->getIsHit();
     	});
     	

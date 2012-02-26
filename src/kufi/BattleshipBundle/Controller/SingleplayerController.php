@@ -3,9 +3,7 @@
 namespace kufi\BattleshipBundle\Controller;
 
 use kufi\BattleshipBundle\Entity\Ship1;
-
 use kufi\BattleshipBundle\Model\GameRepository;
-
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
@@ -22,12 +20,26 @@ class SingleplayerController extends Controller
 	private $gameRepository;
 	private $fieldSize;
 	private $session;
+	private $router;
 	
-	public function __construct(GameRepository $gameRepository, $session, $fieldSize)
+	public function __construct(GameRepository $gameRepository, $router, $session, $fieldSize)
 	{
 		$this->gameRepository = $gameRepository;
 		$this->fieldSize = $fieldSize;
 		$this->session = $session;
+		$this->router = $router;
+	}
+	
+	/**
+	 * forces the site to create a new game by deleting the session id
+	 * 
+	 * @Route("/singleplayer/new", name="bs_sp_forceNew")
+	 * @Template()
+	 */
+	public function newGameAction()
+	{
+		$this->session->set("sp_gameId", "");
+		return $this->redirect($this->router->generate("bs_sp_newGame"));
 	}
 	
 	/**
@@ -35,7 +47,7 @@ class SingleplayerController extends Controller
 	 * @Route("/singleplayer", name="bs_sp_newGame")
 	 * @Template()
 	 */
-	public function newGameAction()
+	public function singleplayerAction()
 	{
 		$game = $this->gameRepository->getGame($this->session->get("sp_gameId"));
 		if($game === null)
