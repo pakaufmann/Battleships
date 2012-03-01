@@ -13,59 +13,7 @@ $(function() {
 	orientation = $("#orientation input:checked").attr("value");
 	
 	
-	$("#userField td").click(function() {
-		var coords = getCoords(this);
-		var valid = true;
-		
-		//check if valid
-		onFields(this, function(x, y, i) {
-			if($("#userField_" + x + "_" + (y + i)).size() == 0 ||
-			   $("#userField_" + x + "_" + (y + i)).hasClass("shipAdded")) {
-				valid = false;
-			}
-		}, function(x, y, i) {
-			if($("#userField_" + (x + i) + "_" + y).size() == 0 ||
-			   $("#userField_" + (x + i) + "_" + y).hasClass("shipAdded")) {
-				valid = false;
-			}
-		});
-		
-		if(!valid) {
-			messageBar("This position is not valid", "error");
-			return;
-		}
-		
-		//check if already set
-		if($("#ships input[value=" + shipLength + "]").button("option", "disabled")) {
-			messageBar("This Ship is already set!", "error");
-			return;
-		}
-		
-		//add the ship also on the serverside
-		clickedTd = this;
-		$.getJSON("singleplayer/addShip/" + coords.x + "/" + coords.y + "/" + shipLength + "/" + orientation, function(data) {
-			if(!data.success) {
-				messageBar("There was a server error, the ship could not be set there", "error");
-			} else {
-				$("#ships input[value=" + shipLength + "]").button("option", "disabled", true);
-				onFields(clickedTd, function(x,y,i) {
-					$("#userField_" + x + "_" + (y + i)).addClass("shipAdded");
-				}, function(x,y,i) {
-					$("#userField_" + (x + i) + "_" + y).addClass("shipAdded");
-				});
-				
-				messageBar("Valid position", "info");
-				
-				//move to next ship which is not set and check it
-				selectShip();
-				shipLength = $("#ships input:checked").attr("value");
-				
-				//check if all ships have been set, if yes, call serverside
-				checkShips();
-			}
-		});
-		
-	}).hover(function() {
+	$("#userField td").click(addUserShip).hover(function() {
 		onFields(this, function(x, y, i) {
 			$("#userField_" + x + "_" + (y + i)).addClass("addShip");
 		}, function(x, y, i) {
@@ -110,6 +58,9 @@ function checkShips() {
 				}, function() {
 					$(this).removeClass("shoot");
 				});
+				
+				//check if reload and somebody already won the game
+				checkWon(data);
 			} else {
 				messageBar("A serverside error occured", "error");
 			}
@@ -120,7 +71,11 @@ function checkShips() {
 /**
  * handles click on ai field
  */
-function aiFieldClick() {
+function aiFieldClick(event) {
+	//get mouse position (for animation, because jquery can't handle the rotate properly)
+	var mouseX = event.pageX;
+	var mouseY = event.pageY;
+	
 	//check if field already shot
 	if($(this).hasClass("shot")) {
 		messageBar("You have already shot on this field", "error");
@@ -133,14 +88,25 @@ function aiFieldClick() {
 	
 	$.getJSON("singleplayer/shoot/" + xy.x + "/" + xy.y, function(data) {
 		if(data.success) {
+			//check if anybody won
+			checkWon(data);
+			
 			if(data.alreadyHit) {
 				messageBar("You have already hit this field!", "warning");
 			}
-			if(data.hit) {
-				hitField.addClass("hit").addClass("shot");
-			} else {
-				hitField.addClass("shot");
+			
+			//if we hit anything, show it
+			if(!data.alreadyHit) {
+				if(data.hit) {
+					shootAnimation(hitField, mouseX, mouseY, "hit shot");
+					hitField.addClass("hit").addClass("shot");
+				} else {
+					shootAnimation(hitField, mouseX, mouseY, "shot");
+					hitField.addClass("shot");
+				}
 			}
+			
+			//for each shot ai field, show it on the gamefield
 			$.each(data.aiHitFields, function(i, f) {
 				var x = f.x;
 				var y = f.y;
@@ -158,11 +124,34 @@ function aiFieldClick() {
 	});
 }
 
-function messageBar(message, messageType) {
+function shootAnimation(hitField, x, y, classes) {
+	var posTop = y - hitField.height()/2;
+	var posLeft = x - hitField.width()/2;
+	$("html").append("<div id=\"tempShot\" class=\"field " + classes + "\" style=\"position: absolute; top: " + posTop + "px; left: " + posLeft + "px;\"></div>");
+	$("#tempShot").effect("explode", 1000, function() {
+		$(this).remove();
+	});
+}
+
+function checkWon(data) {
+	if(data.userWon) {
+		messageBar("Congrats, you've won the game", "success", 5000);
+		$("#aiField td").unbind("click").unbind("hover");
+	}
+	if(data.aiWon) {
+		messageBar("You've lost the game", "error", 5000);
+		$("#aiField td").unbind("click").unbind("hover");
+	}
+}
+
+function messageBar(message, messageType, delay) {
+	if(delay == null) {
+		delay = 1500;
+	}
 	$("#message")
 	.stop(true).clearQueue().removeClass()
 	.addClass(messageType).html(message)
-	.slideDown('slow').delay(1500)
+	.slideDown('slow').delay(delay)
 	.slideUp(function() {$(this).removeClass(messageType) });
 }
 
@@ -185,4 +174,58 @@ function onFields(field, horizontalFunction, verticalFunction) {
 			verticalFunction(coords.x, coords.y, i);
 		}
 	}
+}
+
+function addUserShip() {
+	var coords = getCoords(this);
+	var valid = true;
+	
+	//check if valid
+	onFields(this, function(x, y, i) {
+		if($("#userField_" + x + "_" + (y + i)).size() == 0 ||
+		   $("#userField_" + x + "_" + (y + i)).hasClass("shipAdded")) {
+			valid = false;
+		}
+	}, function(x, y, i) {
+		if($("#userField_" + (x + i) + "_" + y).size() == 0 ||
+		   $("#userField_" + (x + i) + "_" + y).hasClass("shipAdded")) {
+			valid = false;
+		}
+	});
+	
+	if(!valid) {
+		messageBar("This position is not valid", "error");
+		return;
+	}
+	
+	//check if already set
+	if($("#ships input[value=" + shipLength + "]").button("option", "disabled")) {
+		messageBar("This Ship is already set!", "error");
+		return;
+	}
+	
+	//add the ship also on the serverside
+	clickedTd = this;
+	$.getJSON("singleplayer/addShip/" + coords.x + "/" + coords.y + "/" + shipLength + "/" + orientation, function(data) {
+		if(!data.success) {
+			messageBar("There was a server error, the ship could not be set there", "error");
+		} else {
+			$("#ships input[value=" + shipLength + "]").button("option", "disabled", true);
+			onFields(clickedTd, function(x,y,i) {
+				$("#userField_" + x + "_" + (y + i)).addClass("shipAdded");
+			}, function(x,y,i) {
+				$("#userField_" + (x + i) + "_" + y).addClass("shipAdded");
+			});
+			
+			messageBar("Valid position", "info");
+			
+			//move to next ship which is not set and check it
+			selectShip();
+			shipLength = $("#ships input:checked").attr("value");
+			
+			//check if all ships have been set, if yes, call serverside
+			checkShips();
+		}
+	});
+	
 }
