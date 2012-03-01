@@ -1,4 +1,12 @@
 @waterColor: #00C;
+@hitColor: #E33;
+
+body
+{
+    width:1000px;
+    margin:auto;
+    font-family:Arial;
+}
 
 .clear
 {
@@ -10,36 +18,41 @@
     width:30px;
     height:30px;
     background-color:@waterColor;
+    padding:0px;
+    margin:0px;
+    .rounded-corners(20px);
 }
 
 .addShip
 {
-    background-color:#55F;
+    background-color:lighten(@waterColor, 30%);
 }
 
 .shoot
 {
-    background-color:#F33;
+    background-color:lighten(@hitColor, 5%);
 }
 
 .shipAdded
 {
-    background-color:#CCC;
+    background-color:lighten(@waterColor, 50%);
 }
 
 .shot
 {
-    background-color:#880;
+    background-color:darken(@waterColor, 20%);
 }
 
 .hit
 {
-    background-color:#F00;
+    background-color:@hitColor;
 }
 
 #fields
 {
-    background-color:@waterColor + #003;
+    .rounded-corners;
+    
+    background-color:lighten(@waterColor, 10%   );
     width:1000px;
 }
 
@@ -55,13 +68,6 @@
     -moz-transform:rotateX(60deg) rotate(45deg);
 }
 
-.gameField td
-{
-    padding:0px;
-    margin:0px;
-    border:1px solid black;
-}
-
 #ships
 {
     float:left;
@@ -72,13 +78,14 @@
 {
     height:25px;
     margin-top:15px;
-    margin-bottom:15px;
+    margin-bottom:35px;
 }
 
 #message
 {
     display:none;
     width:400px;
+    margin:auto;
 }
 
 .messageField
@@ -120,4 +127,60 @@
   color: #D8000C;
   background-color: #FFBABA;
   background-image: url('/Battleships/web/bundles/battleships/images/Cancel.png');
+}
+
+#ships, #orientation
+{
+    margin-top:10px;
+}
+
+#ships
+{
+    margin-left:90px;
+}
+
+@controlPanelHeight: 50px;
+@linkPadding: 12px;
+@linkColor: #EEE;
+#controlPanel
+{
+    background-color:@waterColor;
+    height:@controlPanelHeight;
+    .rounded-corners-bottom;
+    
+    a
+    {
+        padding:@linkPadding;
+        color:@linkColor;
+        text-decoration: none;
+        height:@controlPanelHeight - 2 * @linkPadding;
+        background-color:lighten(@waterColor, 10%);
+        display:block;
+        float:left;
+        font-weight:bold;
+        font-size:20px;
+        .rounded-corners-bottom;
+        margin-right:10px;
+        
+        &:hover
+        {
+            color:lighten(@linkColor, 10%);
+            background-color:lighten(@waterColor, 30%);
+        }
+    }
+}
+
+.rounded-corners-bottom (@radius: 20px) {
+    -webkit-border-bottom-right-radius: @radius;
+    -webkit-border-bottom-left-radius: @radius;
+    -moz-border-radius-bottomright: @radius;
+    -moz-border-radius-bottomleft: @radius;
+    border-bottom-right-radius: @radius;
+    border-bottom-left-radius: @radius;
+}
+
+.rounded-corners(@radius: 20px) {
+  border-radius: @radius;
+  -webkit-border-radius: @radius;
+  -moz-border-radius: @radius;
 }

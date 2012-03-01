@@ -100,27 +100,29 @@ class SingleplayerController extends Controller
 	
 	/**
 	 * starts a game/sets the ai fields (only if not already done)
+	 * 
 	 * @Route("/singleplayer/startGame", name="bs_sp_startGame", defaults={"_format"="json"})
 	 * @Template()
+	 * 
 	 */
 	public function startGameAction()
 	{
 		$gameId = $this->session->get("sp_gameId", "");
 		if($gameId === "") {
-			return array("success" => "false");
+			return array("success" => "false", "userWon" => "false", "aiWon" => "false");
 		}
 		
 		$game = $this->gameRepository->getGame($gameId);
 		
 		//ai fields already set
-		if($game->getUser2Ships()->count() > 0) {
-			return array("success" => "true");
+		if($game->getUser2Ships()->count() == 0) {
+			$game->setUser2FieldsAutomatically();
+			$this->gameRepository->updateGame($game);
 		}
 		
-		$game->setUser2FieldsAutomatically();
-		$this->gameRepository->updateGame($game);
-		
-		return array("success" => "true");
+		return array("success" => json_encode(true),
+					 "userWon" => json_encode($game->user1HasWon()),
+					 "aiWon" => json_encode($game->user2HasWon()));
 	}
 	
 	/**
@@ -142,7 +144,10 @@ class SingleplayerController extends Controller
 		
 		//shoot onto the ai field
 		$hit = $game->hitFieldUser2($x, $y);
-		if($hit)
+		//check if player has won
+		$userWon = $game->user1HasWon();
+		
+		if($hit || $userWon)
 		{
 			$hitFields = array();
 		}
@@ -151,9 +156,17 @@ class SingleplayerController extends Controller
 			//ai shoots and returns all hit fields
 			$hitFields = $game->user2ShootAutomatically();
 		}
+		//check if ai has won
+		$aiWon = $game->user2HasWon();
 		
 		$this->gameRepository->updateGame($game);
 		
-		return array("success" => "true", "alreadyHit" => json_encode($alreadyHit), "hit" => json_encode($hit), "hitFields" => $hitFields);
+		return array("success" => "true",
+					 "alreadyHit" => json_encode($alreadyHit),
+					 "hit" => json_encode($hit),
+					 "hitFields" => $hitFields,
+					 "userWon" => json_encode($userWon),
+					 "aiWon" => json_encode($aiWon),
+		);
 	}
 }

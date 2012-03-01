@@ -24,6 +24,13 @@ abstract class Game
 	
 	/**
 	 *
+	 * @ORM\Column{type="integer"}
+	 * 
+	 */
+	protected $userWon;
+	
+	/**
+	 *
 	 * @ORM\OneToMany(targetEntity="Field1", mappedBy="game", cascade={"all"})
 	 */
 	protected $user1Fields;
@@ -52,6 +59,7 @@ abstract class Game
     	$this->user2Fields = new \Doctrine\Common\Collections\ArrayCollection();
     	$this->user1Ships = new \Doctrine\Common\Collections\ArrayCollection();
     	$this->user2Ships = new \Doctrine\Common\Collections\ArrayCollection();
+    	$this->userWon = 0;
     }
     
     /**
@@ -156,7 +164,8 @@ abstract class Game
     /**
      * Get userFields
      *
-     * @return Doctrine\Common\Collections\Collection 
+     * @return Doctrine\Common\Collections\Collect	
+     * ion 
      */
     public function getUser1Fields()
     {
@@ -287,6 +296,63 @@ abstract class Game
     	$field->setIsHit(true);
     	
     	return $field->getHasShip();
+    }
+    
+    /**
+     * returns true if user1 has won, else false
+     */
+    public function user1HasWon()
+    {
+    	//already checked
+    	if($this->userWon == 1)
+    	{
+    		return true;
+    	}
+    	if($this->userWon == 2)
+    	{
+    		return false;
+    	}
+    	
+    	if(!$this->hasNotHitShips($this->user2Fields))
+    	{
+    		$this->userWon = 1;
+    		return true;
+    	}
+    	return false;
+    }
+    
+    /**
+     * returns true if user2 has won, else false
+     */
+    public function user2HasWon()
+    {
+    	//already checked
+    	if($this->userWon == 1)
+    	{
+    		return false;
+    	}
+    	if($this->userWon == 2)
+    	{
+    		return true;
+    	}
+    	
+    	if(!$this->hasNotHitShips($this->user1Fields))
+    	{
+    		$this->userWon = 2;
+    		return true;
+    	}
+    	return false;
+    }
+    
+    /**
+     * interal function to check if a user has won
+     * @param ArrayCollection $fields
+     */
+    private function hasNotHitShips($fields)
+    {
+    	return $fields->exists(function($key, $field) {
+    		return $field->getHasShip() && !$field->getIsHit();
+    	});
     }
     
     /**
