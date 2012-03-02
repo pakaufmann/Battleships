@@ -1,6 +1,23 @@
-<div id="singleplayer">
-	<a href="{{ path("bs_sp_forceNew") }}">Singleplayer</a>
-</div>
-<div id="multiplayer">
-	<a href="{{ path("bs_mp_lobby") }}">Multiplayer</a>
-</div>
+{% extends "kufiBattleshipBundle:Layouts:layout.html.twig" %}
+
+{% block body %}
+	<div id="mainScreen">
+		<div>
+			<a href="{{ path("bs_sp_forceNew") }}">Singleplayer</a>
+		</div>
+		<div>
+			<a href="{{ path("bs_mp_lobby") }}">Multiplayer</a>
+		</div>
+		
+		{% if is_granted('IS_AUTHENTICATED_FULLY') %}
+			<div>
+				<a href="{{ path("bs_logout") }}">Logout</a>
+			</div>
+		{% else %}
+			<div>
+				<a href="{{ path("bs_login") }}">Login</a>
+			</div>
+		{% endif %}
+		
+	</div>
+{% endblock %}

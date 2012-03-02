@@ -128,9 +128,20 @@ function shootAnimation(hitField, x, y, classes) {
 	var posTop = y - hitField.height()/2;
 	var posLeft = x - hitField.width()/2;
 	$("html").append("<div id=\"tempShot\" class=\"field " + classes + "\" style=\"position: absolute; top: " + posTop + "px; left: " + posLeft + "px;\"></div>");
-	$("#tempShot").effect("explode", 1000, function() {
-		$(this).remove();
-	});
+	
+	//whileloop needs to be here, because sometimes the animation is run before the append is
+	//completed, leading to a round dot somewhere on the screen
+	var animationRun = false;
+	while(!animationRun) {
+		if($("#tempShot").size() == 0) {
+			continue;
+		}
+		
+		animationRun = true;
+		$("#tempShot").effect("explode", 1000, function() {
+			$(this).remove();
+		});
+	}
 }
 
 function checkWon(data) {

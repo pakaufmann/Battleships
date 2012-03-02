@@ -17,6 +17,17 @@
 		<meta http-equiv="cache-control" content="no-cache">
 	</head>
 	<body>
+		<div id="controlPanel">
+			<div class="user">
+				{% if is_granted('IS_AUTHENTICATED_FULLY') %}
+					Hello <span class="name">{{ app.user.firstname }} {{ app.user.lastname }}</span>
+				{% else %}
+					You are not logged in
+				{% endif %}
+			</div>
+			{% block controlPanel %}{% endblock %}
+		</div>
+	
 		{% block body %}{% endblock %}
 	</body>
 </html>

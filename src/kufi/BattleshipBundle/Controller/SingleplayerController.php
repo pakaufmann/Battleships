@@ -2,6 +2,8 @@
 
 namespace kufi\BattleshipBundle\Controller;
 
+use Symfony\Component\Security\Core\SecurityContext;
+
 use kufi\BattleshipBundle\Entity\Ship1;
 use kufi\BattleshipBundle\Model\GameRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -9,26 +11,9 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use kufi\BattleshipBundle\Entity\SingleplayerGame;
 
-/**
- * 
- * @Route("", service="singleplayerController")
- *
- */
 class SingleplayerController extends Controller
 {
-	
-	private $gameRepository;
-	private $fieldSize;
-	private $session;
-	private $router;
-	
-	public function __construct(GameRepository $gameRepository, $router, $session, $fieldSize)
-	{
-		$this->gameRepository = $gameRepository;
-		$this->fieldSize = $fieldSize;
-		$this->session = $session;
-		$this->router = $router;
-	}
+	private $fieldSize = 10;
 	
 	/**
 	 * forces the site to create a new game by deleting the session id
@@ -38,8 +23,15 @@ class SingleplayerController extends Controller
 	 */
 	public function newGameAction()
 	{
-		$this->session->set("sp_gameId", "");
-		return $this->redirect($this->router->generate("bs_sp_newGame"));
+		$this->getRequest()->getSession()->set("sp_gameId", "");
+		
+		if ($this->get('security.context')->isGranted('IS_AUTHENTICATED_FULLY')) {
+			$user = $this->get("security.context")->getToken()->getUser();
+			$user->addPlayedGame();
+			$this->get("userRepository")->updateUser($user);
+		}
+			
+		return $this->redirect($this->generateUrl("bs_sp_newGame"));
 	}
 	
 	/**
@@ -49,12 +41,12 @@ class SingleplayerController extends Controller
 	 */
 	public function singleplayerAction()
 	{
-		$game = $this->gameRepository->getGame($this->session->get("sp_gameId"));
+		$game = $this->get("gameRepository")->getGame($this->getRequest()->getSession()->get("sp_gameId"));
 		if($game === null)
 		{
 			$game = new SingleplayerGame(1, $this->fieldSize);
-			$this->gameRepository->addGame($game);
-			$this->session->set("sp_gameId", $game->getId());
+			$this->get("gameRepository")->addGame($game);
+			$this->getRequest()->getSession()->set("sp_gameId", $game->getId());
 		}
 		
 		return array("game" => $game);
@@ -72,12 +64,12 @@ class SingleplayerController extends Controller
 	 * @param int $orientation
 	 */
 	public function addShipAction($x, $y, $length, $orientation) {
-		$gameId = $this->session->get("sp_gameId", "");
+		$gameId = $this->getRequest()->getSession()->get("sp_gameId", "");
 		if($gameId === "") {
 			return array("success" => "false");
 		}
 		
-		$game = $this->gameRepository->getGame($gameId);
+		$game = $this->get("gameRepository")->getGame($gameId);
 		
 		//check if the ship was already set
 		$ships = $game->getUser1Ships();
@@ -93,7 +85,7 @@ class SingleplayerController extends Controller
 		//add the ship
 		$ship = new Ship1($x, $y, $length, $orientation);
 		$res = $game->addUser1Ship($ship);
-		$this->gameRepository->updateGame($game);
+		$this->get("gameRepository")->updateGame($game);
 		
 		return array("success" => json_encode($res));
 	}
@@ -107,17 +99,17 @@ class SingleplayerController extends Controller
 	 */
 	public function startGameAction()
 	{
-		$gameId = $this->session->get("sp_gameId", "");
+		$gameId = $this->getRequest()->getSession()->get("sp_gameId", "");
 		if($gameId === "") {
 			return array("success" => "false", "userWon" => "false", "aiWon" => "false");
 		}
 		
-		$game = $this->gameRepository->getGame($gameId);
+		$game = $this->get("gameRepository")->getGame($gameId);
 		
 		//ai fields already set
 		if($game->getUser2Ships()->count() == 0) {
 			$game->setUser2FieldsAutomatically();
-			$this->gameRepository->updateGame($game);
+			$this->get("gameRepository")->updateGame($game);
 		}
 		
 		return array("success" => json_encode(true),
@@ -133,12 +125,12 @@ class SingleplayerController extends Controller
 	 */
 	public function shootAction($x, $y)
 	{
-		$gameId = $this->session->get("sp_gameId", "");
+		$gameId = $this->getRequest()->getSession()->get("sp_gameId", "");
 		if($gameId === "") {
 			return array("success" => "false", "hit" => "false");
 		}
 		
-		$game = $this->gameRepository->getGame($gameId);
+		$game = $this->get("gameRepository")->getGame($gameId);
 		
 		$alreadyHit = $game->checkAlreadyHitUser2($x, $y);
 		
@@ -159,7 +151,21 @@ class SingleplayerController extends Controller
 		//check if ai has won
 		$aiWon = $game->user2HasWon();
 		
-		$this->gameRepository->updateGame($game);
+		//update statistics of user if logged in
+		if ($this->get('security.context')->isGranted('IS_AUTHENTICATED_FULLY') && ($userWon || $aiWon)) {
+			$user = $this->get("security.context")->getToken()->getUser();
+			if($userWon)
+			{
+				$user->addWonGame();
+			}
+			else
+			{
+				$user->addLostGame();
+			}
+			$this->get("userRepository")->updateUser($user);
+		}
+		
+		$this->get("gameRepository")->updateGame($game);
 		
 		return array("success" => "true",
 					 "alreadyHit" => json_encode($alreadyHit),

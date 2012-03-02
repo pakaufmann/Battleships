@@ -1,10 +1,7 @@
-parameters:
-  fieldSize: 10
 services:
   gameRepository:
     class: kufi\BattleshipBundle\Model\GameRepository
     arguments: [@doctrine.orm.entity_manager]
-  
-  singleplayerController:
-    class: kufi\BattleshipBundle\Controller\SingleplayerController
-    arguments: [@gameRepository, @router, @session, %fieldSize%]
+  userRepository:
+    class: kufi\BattleshipBundle\Model\UserRepository
+    arguments: [@doctrine.orm.entity_manager]

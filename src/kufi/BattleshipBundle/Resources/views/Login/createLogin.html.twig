@@ -1,0 +1,11 @@
+{% extends "kufiBattleshipBundle:Layouts:layout.html.twig" %}
+
+{% block body %}
+	<div id="mainScreen">
+		<form action="{{ path("bs_createLogin") }}" method="post" {{ form_enctype(userForm) }}>
+			{{ form_widget(userForm) }}
+			
+			<input type="submit" value="Create login" />
+		</form>
+	</div>
+{% endblock %}

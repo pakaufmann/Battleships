@@ -1,0 +1,32 @@
+{% extends "kufiBattleshipBundle:Layouts:layout.html.twig" %}
+
+{% block controlPanel %}
+	<a href="{{ path("bs_index") }}">Main</a>
+{% endblock %}
+
+{% block body %}
+	{% if error %}
+	    <div>{{ error.message }}</div>
+	{% endif %}
+	<div id="mainScreen">
+		<div id="loginForm">
+			<form action="{{ path('bs_logincheck') }}" method="post">
+			    <label for="username">Username:</label>
+			    <input type="text" id="username" name="_username" value="{{ last_username }}" />
+			
+			    <label for="password">Password:</label>
+			    <input type="password" id="password" name="_password" />
+			
+			    {#
+			        If you want to control the URL the user is redirected to on success (more details below)
+			        <input type="hidden" name="_target_path" value="/account" />
+			    #}
+			
+			    <input type="submit" name="login" />
+			</form>
+		</div>
+		<div id="noLoginYet">
+			<a href="{{ path("bs_createLogin") }}">Have no login yet?</a>
+		</div>
+	</div>
+{% endblock %}

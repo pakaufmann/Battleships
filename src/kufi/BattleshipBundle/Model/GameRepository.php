@@ -2,7 +2,6 @@
 namespace kufi\BattleshipBundle\Model;
 
 use kufi\BattleshipBundle\kufiBattleshipBundle;
-
 use Doctrine\ORM\EntityManager;
 
 class GameRepository
