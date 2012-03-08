@@ -1,0 +1,60 @@
+{% extends "kufiBattleshipBundle:Layouts:layout.html.twig" %}
+
+{% block controlPanel %}
+	<a href="{{ path("bs_index") }}">Main</a>
+{% endblock %}
+
+{% block body %}
+	<div id="mainScreen">
+		<table id="statistics">
+			<thead>
+				<tr>
+					<th class="first">
+						Username
+					</th>
+					<th>
+						Played
+					</th>
+					<th>
+						Won
+					</th>
+					<th>
+						Lost
+					</th>
+					<th>
+						Abandonded
+					</th>
+					<th class="last">
+						% Won	
+					</th>
+				</tr>
+			</thead>
+		{% for user in users %}
+			<tr>
+				<td class="first">
+					{{ user.username }}
+				</td>
+				<td>
+					{{ user.gamesPlayed }}
+				</td>
+				<td>
+					{{ user.gamesWon }}
+				</td>
+				<td>
+					{{ user.gamesLost }}
+				</td>
+				<td>
+					{{ user.gamesPlayed - user.gamesWon - user.gamesLost }}
+				</td>
+				<td>
+					{% if user.gamesPlayed > 0 %}
+						{{ ((user.gamesWon / user.gamesPlayed)*100)|number_format_decimal({'fraction_digits': 0}) }}%
+					{% else %}
+						0%
+					{% endif %}
+				</td>
+			</tr>
+		{% endfor %}
+		</table>
+	</div>
+{% endblock %}

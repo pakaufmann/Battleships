@@ -73,6 +73,9 @@ class User implements UserInterface {
 	public function __construct()
 	{
 		$this->salt = base_convert(sha1(uniqid(mt_rand(), true)), 16, 36);
+		$this->gamesWon = 0;
+		$this->gamesLost = 0;
+		$this->gamesPlayed = 0;
 	}
 	
 	public function getRoles() {

@@ -24,4 +24,9 @@ class UserRepository
 		$this->em->persist($user);
 		$this->em->flush();
 	}
+	
+	public function getAllUsers()
+	{
+		return $this->em->getRepository("kufiBattleshipBundle:User")->findAll();
+	}
 }

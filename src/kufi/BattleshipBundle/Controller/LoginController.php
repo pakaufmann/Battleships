@@ -56,7 +56,7 @@ class LoginController extends Controller
     			$user->setPassword($encoder->encodePassword($user->getPassword(), $user->getSalt()));
     			
     			$this->get("userRepository")->addUser($user);
-    			return $this->redirect($this->router->generate("bs_createSuccess"));
+    			return $this->redirect($this->generateUrl("bs_createSuccess"));
     		}
     	}
     	

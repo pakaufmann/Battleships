@@ -5,3 +5,13 @@ services:
   userRepository:
     class: kufi\BattleshipBundle\Model\UserRepository
     arguments: [@doctrine.orm.entity_manager]
+  
+  aiFactory:
+    class: kufi\BattleshipBundle\Ai\AiFactory
+    arguments:
+      - {  "1": @easyAi, "2": @difficultAi }
+  easyAi:
+    class: kufi\BattleshipBundle\Ai\EasyAi
+  difficultAi:
+    class: kufi\BattleshipBundle\Ai\DifficultAi
+    arguments: [@session]

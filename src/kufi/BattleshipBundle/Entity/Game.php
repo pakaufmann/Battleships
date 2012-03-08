@@ -354,43 +354,4 @@ abstract class Game
     		return $field->getHasShip() && !$field->getIsHit();
     	});
     }
-    
-    /**
-     * shoots automatically for the user (if in singleplayer for the ai)
-     */
-    public function user2ShootAutomatically()
-    {
-    	//TODO use difficulty level
-    	
-    	//just randomly shoot somewhere where we havent already shot (not really sophisticated)
-    	//shoot until we hit an empty field
-    	$ret = $this->user1Fields->filter(function($field) {
-    		return !$field->getIsHit();
-    	});
-    	
-    	//return empty array if all fields have been shot
-    	if($ret->count() == 0)
-    	{
-    		return array();
-    	}
-    	
-    	//shoot onto fields
-    	$rand = mt_rand(0, $ret->count() - 1);
-    	$keys = $ret->getKeys();
-    	
-    	$fieldToShoot = $ret->get($keys[$rand]);
-    	
-    	if($this->hitFieldUser1($fieldToShoot->getX(), $fieldToShoot->getY()))
-    	{
-    		//if we hit something, call us again and add the field to the resulting array
-    		$fields = $this->user2ShootAutomatically();
-    		$fields[] = $fieldToShoot;
-    		return $fields;
-    	}
-    	else
-    	{
-    		//if we hit nothing, just return a new array with the shot field
-    		return array($fieldToShoot);
-    	}
-    }
 }

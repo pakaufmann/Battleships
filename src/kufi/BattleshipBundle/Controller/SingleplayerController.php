@@ -2,14 +2,16 @@
 
 namespace kufi\BattleshipBundle\Controller;
 
-use Symfony\Component\Security\Core\SecurityContext;
+use kufi\BattleshipBundle\Forms\GameOptionForm;
 
+use Symfony\Component\Security\Core\SecurityContext;
 use kufi\BattleshipBundle\Entity\Ship1;
 use kufi\BattleshipBundle\Model\GameRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use kufi\BattleshipBundle\Entity\SingleplayerGame;
+use kufi\BattleshipBundle\Forms;
 
 class SingleplayerController extends Controller
 {
@@ -23,15 +25,35 @@ class SingleplayerController extends Controller
 	 */
 	public function newGameAction()
 	{
-		$this->getRequest()->getSession()->set("sp_gameId", "");
+		//reset gameId
+		$request = $this->getRequest();
+		$request->getSession()->set("sp_gameId", "");
 		
-		if ($this->get('security.context')->isGranted('IS_AUTHENTICATED_FULLY')) {
-			$user = $this->get("security.context")->getToken()->getUser();
-			$user->addPlayedGame();
-			$this->get("userRepository")->updateUser($user);
+		$game = new SingleplayerGame(0, 10);
+		$form = $this->createForm(new GameOptionForm($this->get("aiFactory")->getAis()), $game);
+		
+		if($request->getMethod() == "POST")
+		{
+			$form->bindRequest($request);
+		
+			if($form->isValid())
+			{
+				//add game to database
+				$this->get("gameRepository")->addGame($game);
+				$this->getRequest()->getSession()->set("sp_gameId", $game->getId());
+				
+				//update user played games
+				if ($this->get('security.context')->isGranted('IS_AUTHENTICATED_FULLY')) {
+					$user = $this->get("security.context")->getToken()->getUser();
+					$user->addPlayedGame();
+					$this->get("userRepository")->updateUser($user);
+				}
+				
+				return $this->redirect($this->generateUrl("bs_sp_newGame"));
+			}
 		}
-			
-		return $this->redirect($this->generateUrl("bs_sp_newGame"));
+		
+		return array("form" => $form->createView());
 	}
 	
 	/**
@@ -44,9 +66,7 @@ class SingleplayerController extends Controller
 		$game = $this->get("gameRepository")->getGame($this->getRequest()->getSession()->get("sp_gameId"));
 		if($game === null)
 		{
-			$game = new SingleplayerGame(1, $this->fieldSize);
-			$this->get("gameRepository")->addGame($game);
-			$this->getRequest()->getSession()->set("sp_gameId", $game->getId());
+			return $this->redirect($this->generateUrl("bs_sp_forceNew"));
 		}
 		
 		return array("game" => $game);
@@ -146,7 +166,7 @@ class SingleplayerController extends Controller
 		else
 		{
 			//ai shoots and returns all hit fields
-			$hitFields = $game->user2ShootAutomatically();
+			$hitFields = $game->user2ShootAutomatically($this->get("aiFactory"));
 		}
 		//check if ai has won
 		$aiWon = $game->user2HasWon();

@@ -20,6 +20,11 @@ body
     border:solid 1px #CCC;
     width:400px;
     
+    &.wide
+    {
+        width:800px;
+    }
+    
     a
     {
         margin:auto;
@@ -254,17 +259,91 @@ body
     }
 }
 
-.rounded-corners-bottom (@radius: 20px) {
-    -webkit-border-bottom-right-radius: @radius;
+.rounded-corners-bottom-left(@radius: 20px)
+{
     -webkit-border-bottom-left-radius: @radius;
-    -moz-border-radius-bottomright: @radius;
     -moz-border-radius-bottomleft: @radius;
-    border-bottom-right-radius: @radius;
     border-bottom-left-radius: @radius;
+}
+
+.rounded-corners-bottom-right(@radius: 20px)
+{
+    -webkit-border-bottom-right-radius: @radius;
+    -moz-border-radius-bottomright: @radius;
+    border-bottom-right-radius: @radius;
+}
+
+.rounded-corners-bottom (@radius: 20px) {
+    .rounded-corners-bottom-left(@radius);
+    .rounded-corners-bottom-right(@radius);
+}
+
+.rounded-corners-top-left(@radius: 20px)
+{
+    -webkit-border-top-left-radius: @radius;
+    -moz-border-radius-topleft: @radius;
+    border-top-left-radius: @radius;
+}
+
+.rounded-corners-top-right(@radius: 20px)
+{
+    -webkit-border-top-right-radius: @radius;
+    -moz-border-radius-topright: @radius;
+    border-top-right-radius: @radius;
+}
+
+.rounded-corners-top (@radius: 20px)
+{
+    .rounded-corners-top-left(@radius);
+    .rounded-corners-top-right(@radius);   
 }
 
 .rounded-corners(@radius: 20px) {
   border-radius: @radius;
   -webkit-border-radius: @radius;
   -moz-border-radius: @radius;
+}
+
+#statistics
+{
+    background-color:white;
+    .rounded-corners;
+    padding:10px;
+    width:100%;
+    border-collapse: collapse;
+    
+    thead
+    {
+        th
+        {
+            padding:5px;
+            background-color:@waterColor;
+            color:white;
+            
+            &.first
+            {
+                .rounded-corners-top-left;
+            }
+            
+            &.last
+            {
+                .rounded-corners-top-right;
+            }
+        }
+    }
+    
+    tr
+    {
+        td
+        {
+            padding:8px;
+            border-left:1px solid #CCC;
+            text-align:center;
+            
+            &.first
+            {
+                border-width:0px;
+            }
+        }
+    }
 }
