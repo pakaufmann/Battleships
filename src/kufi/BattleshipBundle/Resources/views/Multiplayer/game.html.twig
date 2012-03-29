@@ -1,0 +1,27 @@
+{% extends "kufiBattleshipBundle:Layouts:layout.html.twig" %}
+
+{% block javascripts %}
+    <script src="{{ asset('bundles/battleships/scripts/game.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('bundles/battleships/scripts/multiplayer.js') }}" type="text/javascript"></script>
+{% endblock %}
+
+{% block controlPanel %}
+	<a href="{{ path("bs_index") }}">Main</a>
+	<a href="{{ path("bs_mp_lobby") }}">Back to Lobby</a>
+{% endblock %}
+
+{% block body %}
+    {% include "kufiBattleshipBundle:Multiplayer:ships.html.twig" with { "game" : game } %}
+	
+	<div id="messages">
+		<div id="message">
+		</div>
+	</div>
+	
+	<div id="fields">
+		{% include 'kufiBattleshipBundle:Game:gameField.html.twig' with {'fields': game.getUserFields(app.user), 'fieldId': 'userField', 'user': true} %}
+		
+		{% include 'kufiBattleshipBundle:Game:gameField.html.twig' with {'fields': game.getOppositeFields(app.user), 'fieldId': 'enemyField', 'user': false} %}
+		<div class="clear"></div>
+	</div>
+{% endblock %}

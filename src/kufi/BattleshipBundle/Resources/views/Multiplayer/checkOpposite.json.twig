@@ -1,0 +1,14 @@
+{
+    "playerTurn": {{ playerTurn }},
+    "hitFields": [
+		{% for field in hitFields %}
+			{
+				"x": {{ field.getX() }},
+				"y": {{ field.getY() }}
+			},
+		{% endfor %}
+		{ "x": -1, "y": -1 }
+	],
+	"oppositeWon": {{ oppositeWon }},
+	"userWon" : {{ userWon }}
+}

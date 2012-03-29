@@ -1,0 +1,34 @@
+<table class="gameField" id="{{ fieldId }}">
+	{% set lastX = -1 %}
+	{% set firstRow = true %}
+	
+	{% for field in fields %}
+		{% if lastX != field.getX() and not firstRow %}
+			</tr>
+		{% endif %}
+		
+		{% if lastX != field.getX() %}
+			<tr>
+			{% set firstRow = false %}
+		{% endif %}
+		
+		{% set fieldClass = "field" %}
+		
+		{% if field.hasShip() and user %}
+			{% set fieldClass = fieldClass ~ " shipAdded" %}
+		{% endif %}
+		
+		{% if field.getIsHit() %}
+			{% set fieldClass = fieldClass ~ " shot" %}
+		{% endif %}
+		
+		{% if field.getIsHit() and field.getHasShip() %}
+			{% set fieldClass = fieldClass ~ " hit" %}
+		{% endif %}
+		
+		<td id="{{ fieldId }}_{{ field.getX() }}_{{ field.getY() }}" class="{{ fieldClass }}">
+		</td>
+		
+		{% set lastX = field.getX() %}
+	{% endfor %}
+</table>

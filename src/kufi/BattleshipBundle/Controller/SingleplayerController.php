@@ -76,7 +76,7 @@ class SingleplayerController extends Controller
 	 * set a field in the database
 	 * 
 	 * @Route("/singleplayer/addShip/{x}/{y}/{length}/{orientation}", name="bs_sp_setField", defaults={"_format"="json"})
-	 * @Template()
+	 * @Template("kufiBattleshipBundle:Game:addShip.json.twig")
 	 * 
 	 * @param int $x
 	 * @param int $y
@@ -154,7 +154,7 @@ class SingleplayerController extends Controller
 		
 		$alreadyHit = $game->checkAlreadyHitUser2($x, $y);
 		
-		//shoot onto the ai field
+		//shoot onto the user ai field
 		$hit = $game->hitFieldUser2($x, $y);
 		//check if player has won
 		$userWon = $game->user1HasWon();

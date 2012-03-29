@@ -4,6 +4,19 @@ use kufi\BattleshipBundle\Ai\AiStrategy;
 
 /**
  * also shoots randomly, but starts shooting adjancent fields as soon as it hits a ship
+ * implemented as state machine, with 4 states
+ * the four states are: shootRandom, shootNeighbours, shootLine, shootOppositeLine
+ * state machine setup:
+ * 
+ *  +---------------all neighbours hit ---+              +----------on hit-----------+
+ *  v                                     |              v                           |
+ *  +-no hit-+                +-no hit-+  |              +-on hit-+                  |
+ *  v        |                v        |  |              v        |                  |
+ * shootRandom----on hit---->shootNeighbours---on hit--->shootLine---no hit---->shootOppositeLine
+ *  ^                                                                                |
+ *  |                                                                                |
+ *  +-----------------------------------------no hit---------------------------------+
+ * 
  * @author kufi
  *
  */
@@ -32,9 +45,7 @@ class DifficultAi implements AiStrategy
         $sessionState = $this->session->get($this->sessionVariable, "shootRandom");
         
         $this->actualState = $this->states[$sessionState];
-        echo "State: " . $sessionState . "\n";
         $field = $this->actualState->doMove($game);
-        echo "Field: " . $field->getX() . " : " . $field->getY() . "\n";
         
         return $field;
     }
@@ -65,9 +76,7 @@ interface DifficultAiState
 {
 
     public function doMove(\kufi\BattleshipBundle\Entity\Game $game);
-
     public function getStateOnHit();
-
     public function getStateOnNotHit();
 }
 
@@ -93,10 +102,9 @@ class ShootRandom implements DifficultAiState
     {
         $this->gameId = $game->getId();
 
-        $ret = $game->getUser1Fields()->filter(function ($field)
-                {
-                    return !$field->getIsHit();
-                });
+        $ret = $game->getUser1Fields()->filter(function ($field) {
+            return !$field->getIsHit();
+        });
 
         //return empty array if all fields have been shot
         if ($ret->count() == 0)
@@ -152,13 +160,11 @@ class ShootNeighbours implements DifficultAiState
         $y = $this->session->get("difficult_ai_initial_hit_y" . $game->getId(), "");
 
         //find all neighbouring fields which are not already hit
-        $fields = $game->getUser1Fields()
-                ->filter(
-                        function ($field) use ($x, $y)
-                        {
-                            return ($field->getX() == $x && $field->getY() == $y - 1 || $field->getX() == $x && $field->getY() == $y + 1 || $field->getX() == $x + 1 && $field->getY() == $y || $field->getX() == $x - 1 && $field->getY() == $y) && !$field->getIsHit();
-                        });
+        $fields = $game->getUser1Fields()->filter(function ($field) use ($x, $y) {
+            return ($field->getX() == $x && $field->getY() == $y - 1 || $field->getX() == $x && $field->getY() == $y + 1 || $field->getX() == $x + 1 && $field->getY() == $y || $field->getX() == $x - 1 && $field->getY() == $y) && !$field->getIsHit();
+        });
 
+        //if all neighbouring fields have been hit, start shooting randoms
         if ($fields->count() == 0)
         {
             $this->allFieldsShot = true;
@@ -234,20 +240,19 @@ class ShootLine implements DifficultAiState
         {
             //get direction (up or down)
             $direction = ($initialY > $lastY) ? -1 : 1;
-
-            $fields = $game->getUser1Fields()
-                    ->filter(function ($field) use ($lastX, $lastY, $direction)
-                    {
-                        return $field->getX() == $lastX && $field->getY() == $lastY + $direction && !$field->getIsHit();
-                    });
+            
+            //gets next field in row
+            $fields = $game->getUser1Fields()->filter(function ($field) use ($lastX, $lastY, $direction) {
+                return $field->getX() == $lastX && $field->getY() == $lastY + $direction && !$field->getIsHit();
+            });
         } else
         {
             //shoot horizontal
             //get direction (left or right)
             $direction = ($initialX > $lastX) ? -1 : 1;
-
-            $fields = $game->getUser1Fields()
-                    ->filter(function ($field) use ($lastX, $lastY, $direction)
+            
+            //gets next field in row
+            $fields = $game->getUser1Fields()->filter(function ($field) use ($lastX, $lastY, $direction)
                     {
                         return $field->getX() == $lastX + $direction && $field->getY() == $lastY && !$field->getIsHit();
                     });
@@ -312,7 +317,8 @@ class ShootOppositeLine implements DifficultAiState
         {
             //get direction (up or down)
             $direction = ($initialY > $lastY) ? 1 : -1;
-        
+            
+            //get next field
             $fields = $game->getUser1Fields()->filter(function ($field) use ($initialX, $initialY, $direction) {
                 return $field->getX() == $initialX && $field->getY() == $initialY + $direction && !$field->getIsHit();
             });
@@ -321,7 +327,8 @@ class ShootOppositeLine implements DifficultAiState
             //shoot horizontal
             //get direction (left or right)
             $direction = ($initialX > $lastX) ? 1 : -1;
-        
+            
+            //get next field
             $fields = $game->getUser1Fields()->filter(function ($field) use ($initialX, $initialY, $direction) {
                 return $field->getX() == $initialX + $direction && $field->getY() == $initialY && !$field->getIsHit();
             });

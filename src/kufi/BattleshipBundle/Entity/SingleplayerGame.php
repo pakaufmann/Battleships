@@ -20,18 +20,9 @@ class SingleplayerGame extends Game
     
     public function __construct($difficulty, $fieldSize)
     {
-    	parent::__construct();
+    	parent::__construct($fieldSize);
     	
     	$this->difficulty = $difficulty;
-    	
-    	//create the fields
-    	for($x = 0;$x<$fieldSize;$x++) {
-    		for($y = 0;$y<$fieldSize;$y++) {
-    			$this->addUser1Field(new Field1($x, $y));
-    			$this->addUser2Field(new Field2($x, $y));
-    		}
-    	}
-    	
     }
     
     /**

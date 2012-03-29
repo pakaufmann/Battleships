@@ -53,13 +53,21 @@ abstract class Game
 	 */
 	protected $user2Ships;
 	
-    public function __construct()
+    public function __construct($fieldSize)
     {
         $this->user1Fields = new \Doctrine\Common\Collections\ArrayCollection();
     	$this->user2Fields = new \Doctrine\Common\Collections\ArrayCollection();
     	$this->user1Ships = new \Doctrine\Common\Collections\ArrayCollection();
     	$this->user2Ships = new \Doctrine\Common\Collections\ArrayCollection();
     	$this->userWon = 0;
+    	
+    	//create the fields
+    	for($x = 0;$x<$fieldSize;$x++) {
+    	    for($y = 0;$y<$fieldSize;$y++) {
+    	        $this->addUser1Field(new Field1($x, $y));
+    	        $this->addUser2Field(new Field2($x, $y));
+    	    }
+    	}
     }
     
     /**
@@ -208,9 +216,23 @@ abstract class Game
      */
     public function hasShip1WithLength($length)
     {
-    	return $this->user1Ships->filter(function($s) use($length) {
-    		return $s->getLength() == $length;
-    	})->count() > 0;
+    	return $this->userHasShipWithLength($length, $this->user1Ships);
+    }
+    
+    /**
+     * checks if user1 already has set a ship with the given length
+     * @param unknown_type $length
+     */
+    public function hasShip2WithLength($length)
+    {
+        return $this->userHasShipWithLength($length, $this->user2Ships);
+    }
+    
+    private function userHasShipWithLength($length, $userShips)
+    {
+        return $userShips->filter(function($s) use($length) {
+            return $s->getLength() == $length;
+        })->count() > 0;
     }
     
     /**

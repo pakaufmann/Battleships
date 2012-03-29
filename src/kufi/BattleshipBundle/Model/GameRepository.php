@@ -30,4 +30,9 @@ class GameRepository
 	{
 		return $this->em->getRepository("kufiBattleshipBundle:Game")->find($id);
 	}
+	
+	public function getAllOpenMultiplayerGames()
+	{
+	    return $this->em->createQuery("SELECT g FROM kufi\BattleshipBundle\Entity\MultiplayerGame g WHERE g.playerOne IS NOT NULL AND g.playerTwo IS NULL")->getResult();
+	}
 }

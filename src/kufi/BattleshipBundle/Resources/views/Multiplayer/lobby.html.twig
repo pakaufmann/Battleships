@@ -1,0 +1,39 @@
+{% extends "kufiBattleshipBundle:Layouts:layout.html.twig" %}
+
+{% block controlPanel %}
+	<a href="{{ path("bs_index") }}">Main</a>
+	<a href="{{ path("bs_mp_createNew") }}">Create new Game</a>
+{% endblock %}
+
+{% block body %}
+    <div id="mainScreen" class="wide">
+        <h1>Open games</h1>
+        
+        {% if app.session.hasFlash("gameGone") %}
+            {{ app.session.flash("gameGone") }}
+        {% endif %}
+        
+        <table id="openGames" class="table">
+            <thead>
+                <tr>
+                    <th class="first">
+                        Name
+                    </th>
+                    <th class="last">
+                        Join
+                    </th>
+                </tr>
+            </thead>
+            {% for game in openGames %}
+                <tr>
+                    <td class="first">
+                        {{ game.name }}
+                    </td>
+                    <td class="last">
+                        <a href="{{ path("bs_mp_joinGame", { "id" : game.id } ) }}">Join</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+{% endblock %}

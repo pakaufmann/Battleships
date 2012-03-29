@@ -1,0 +1,13 @@
+{% extends "kufiBattleshipBundle:Layouts:layout.html.twig" %}
+
+{% block body %}
+    <div id="mainScreen" class="centering">
+        <h1>You need a valid login for the multiplayer!</h1>
+        
+        <a href="{{ path("bs_createLogin") }}">Create one here</a>
+        
+        <h1>or</h1>
+        
+        <a href="{{ path("bs_login") }}">Login here</a>
+    </div>
+{% endblock %}
