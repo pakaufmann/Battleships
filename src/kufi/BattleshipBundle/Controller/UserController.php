@@ -16,5 +16,14 @@ class UserController extends Controller
 	public function statisticsAction()
 	{
 		return array("users" => $this->get("userRepository")->getAllUsers());
-	}	
+	}
+	
+	/**
+	 * @Route("/statistics/rss", name="bs_statistics_rss", defaults={"_format"="rss"})
+	 * @Template()
+	 */
+	public function statisticsRssAction()
+	{
+	    return array("users" => $this->get("userRepository")->getAllUsers());
+	}
 }

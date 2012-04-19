@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+
+<channel>
+    <title>RSS Example</title>
+    <description>RSS feed of the actual user statistics</description>
+    <link>http://www.domain.com/link.htm</link>
+    {% for user in users %}
+    <item> 
+        <title>{{ user.username }}</title>  
+        <description>
+            Played games: {{ user.gamesPlayed }}
+            Won games: {{ user.gamesWon }}
+            Lost games: {{ user.gamesLost }}
+        </description>  
+        <link>{{ path("bs_statistics") }}</link>  
+        <guid isPermaLink="false">}</guid>
+        <pubDate></pubDate> 
+    </item>  
+    {% endfor %}
+ </channel> 
+</rss> 

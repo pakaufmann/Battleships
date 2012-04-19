@@ -1,11 +1,15 @@
 {% extends "kufiBattleshipBundle:Layouts:layout.html.twig" %}
 
+{% block controlPanel %}
+	<a href="{{ path("bs_index") }}">Main</a>
+{% endblock %}
+
 {% block body %}
 	<div id="mainScreen">
 		<form action="{{ path("bs_sp_forceNew") }}" method="post" {{ form_enctype(form) }}>
 			{{ form_widget(form) }}
 			
-			<input type="submit" value="Create login" />
+			<input type="submit" value="Start Game" />
 		</form>
 	</div>
 {% endblock %}
