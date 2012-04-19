@@ -23,10 +23,16 @@
 {% block body %}
 	<div id="mainScreen">
 		<div>
-			<a href="{{ path("bs_sp_forceNew") }}">Singleplayer</a>
+			<a href="{{ path("bs_sp_forceNew") }}">
+			    <img src="{{ asset("bundles/battleships/images/singleplayer.png") }}" style="width:20px;height:20px;" />
+			    Singleplayer
+			</a>
 		</div>
 		<div>
-			<a href="{{ path("bs_mp_lobby") }}">Multiplayer</a>
+			<a href="{{ path("bs_mp_lobby") }}">
+			    <img src="{{ asset("bundles/battleships/images/multiplayer.png") }}" style="width:20px;height:20px;" />
+			    Multiplayer
+		    </a>
 		</div>
 		
 		{% if is_granted('IS_AUTHENTICATED_FULLY') %}

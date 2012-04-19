@@ -1,5 +1,9 @@
 {% extends "kufiBattleshipBundle:Layouts:layout.html.twig" %}
 
+{% block controlPanel %}
+	<a href="{{ path("bs_index") }}">Main</a>
+{% endblock %}
+
 {% block body %}
     <div id="mainScreen" class="centering">
         <h1>You need a valid login for the multiplayer!</h1>
